@@ -1,93 +1,161 @@
-import java.util.Scanner;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class hw3 {
     public static void main(String[] args) {
-        String[] data = new String[0];
+        String str = input();
+
+        int result = checkingTheAmountOfData(str);
+
+        if (result == 1) {
+            System.out.println("Данных больше чем нужно");
+            return;
+        } else if (result == 2) {
+            System.out.println("Данных меньше чем нужно");
+            return;
+        }
+
+        String fio = "";
+        String birthday = "";
+        String gender = "";
+        String phoneNumber = "";
 
         try {
-            data = input();
+            fio = parseFIO(str);
+            birthday = parseBirthday(str);
+            gender = parseGender(str);
+            phoneNumber = parsePhoneNumber(str);
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
+            return;
         }
 
-        int indexFIO = 0;
-        int indexGender = 0;
-        int indexPhoneNumber = 0;
-        int indexBirthday = 0;
-
-
-        for (String str: data) {
-            if ()
+        String path = fio.split(" ")[0] + ".txt";
+        try (FileWriter fw = new FileWriter(path)) {
+            fw.write(createFileLine(fio, birthday, gender, phoneNumber));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
-
-
-        // создать файл
     }
 
-    public static boolean isPhoneNumber(String str) throws {
-        try {
+    public static String createFileLine(String fio, String birthday, String gender, String phoneNumber) {
+        String[] dataFIO = fio.split(" ");
+        StringBuilder sb = new StringBuilder();
 
-        } catch () {
-            return false;
-        }
+        sb.append("<").append(dataFIO[0]).append(">");
+        sb.append("<").append(dataFIO[1]).append(">");
+        sb.append("<").append(dataFIO[2]).append(">");
+        sb.append("<").append(birthday).append(">");
+        sb.append("<").append(phoneNumber).append(">");
+        sb.append("<").append(gender).append(">");
 
-        return true;
+        return sb.toString();
     }
 
-    public static boolean isFIO(String str) {
-        try {
+    public static String parseFIO(String str) throws RuntimeException {
+        String[] data = str.split(" ");
+        int count = 0;
+        StringBuilder fio = new StringBuilder();
+        for (String tmp : data) {
+            boolean isFIO = true;
+            for (int i = 0; i < tmp.length(); i++) {
+                if (tmp.length() < 2 || !Character.isAlphabetic(tmp.charAt(i))) {
+                    isFIO = false;
+                    break;
+                }
+            }
 
-        } catch () {
-            return false;
+            if (isFIO) {
+                if (!fio.isEmpty()) fio.append(" ");
+                fio.append(tmp);
+                count++;
+            } else if (!fio.isEmpty()) {
+                break;
+            }
         }
 
-        return true;
+        if (count == 3) return fio.toString();
+
+        throw new RuntimeException("Не найден ФИО");
     }
 
-    public static boolean isBirthday(String str) {
-        try {
+    public static String parseGender(String str) {
+        String[] data = str.split(" ");
 
-        } catch () {
-            return false;
+        for (String tmp : data) {
+            for (int i = 0; i < tmp.length(); i++) {
+                if (tmp.length() == 1 && (tmp.equals("f") || !tmp.equals("m"))) {
+                    return tmp;
+                }
+            }
         }
 
-        return true;
+        throw new RuntimeException("Не найден пол");
     }
 
-    public static boolean isGender(String str) {
-        try {
+    public static String parseBirthday(String str) {
+        String[] data = str.split(" ");
 
-        } catch () {
-            return false;
+        for (String tmp : data) {
+            boolean isBirthday = true;
+            String[] dataBirhday = tmp.split("\\.");
+
+            if (dataBirhday.length != 3) {
+                isBirthday = false;
+            }
+
+            if (isBirthday) {
+                return tmp;
+            }
         }
 
-        return true;
+        throw new RuntimeException("Не найдена дата рождения");
     }
 
-    public static String[] input() throws RuntimeException {
-//        System.out.println("Введите ФИО, Дату рождения, Номер телефона, Пол");
+    public static String parsePhoneNumber(String str) {
+        String[] data = str.split(" ");
+
+        for (String tmp : data) {
+            boolean isPhoneNumber = true;
+            for (int i = 0; i < tmp.length(); i++) {
+                if (!Character.isDigit(tmp.charAt(i))) {
+                    isPhoneNumber = false;
+                    break;
+                }
+            }
+
+            if (isPhoneNumber) {
+                if (tmp.length() != 12) throw new WrongLengthPhoneNumberException(tmp.length());
+                return tmp;
+            }
+        }
+
+        throw new RuntimeException("Не найден телефонный номер");
+    }
+
+    public static String input() {
+//        System.out.println("Введите ФИО, Дату рождения, Номер телефона, Пол через пробел");
+//        System.out.println("Фамилия, Имя, Отчество - строки\nДата рождения - строка формата dd.mm.yyyy\nНомер телефона - целое беззнаковое число без форматирования\nпол - символ латиницей f или m);
 //        Scanner scanner = new Scanner(System.in);
 //        return scanner.nextLine();
 
-        String str =  "06.08.1982 Лепихов Роман +375293493335 Олегович M";
+        String str = "06.08.1982 Лепихов Роман Олегович 375293493335 f";
 
-        String[] arr = str.split(" ");
-        if (arr.length > 6) throw new RuntimeException("Данных больше чем нужно");
-        else if (arr.length < 6) throw new RuntimeException("Данных меньше чем нужно");
-
-        return arr;
+        return str;
     }
 
-//    public static class MoreDataException extends RuntimeException {
-//        public MoreDataException() {
-//            super("Данных больше чем нужно");
-//        }
-//    }
-//
-//    public static class LessDataException extends RuntimeException {
-//        public LessDataException() {
-//            super("Данных меньше чем нужно");
-//        }
-//    }
+    public static int checkingTheAmountOfData(String str) {
+        String[] data = str.split(" ");
 
+        if (data.length > 6) return 1;
+        else if (data.length < 6) return 2;
+
+        return 0;
+    }
+
+    public static class WrongLengthPhoneNumberException extends RuntimeException {
+        public WrongLengthPhoneNumberException(int length) {
+            super("Длина телефонного номера должна быть 12 цифр а у вас: " + length);
+        }
+    }
 }
