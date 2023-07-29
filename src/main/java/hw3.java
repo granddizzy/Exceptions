@@ -1,41 +1,76 @@
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
+import java.util.Scanner;
 
 public class hw3 {
     public static void main(String[] args) {
-        String str = input();
+        while (true) {
+            String str = input();
 
-        int result = checkingTheAmountOfData(str);
+            if (str.isEmpty()) break;
 
-        if (result == 1) {
-            System.out.println("Данных больше чем нужно");
-            return;
-        } else if (result == 2) {
-            System.out.println("Данных меньше чем нужно");
-            return;
+            int result = checkingTheAmountOfData(str);
+
+            if (result == 1) {
+                System.out.println("Данных больше чем нужно");
+                return;
+            } else if (result == 2) {
+                System.out.println("Данных меньше чем нужно");
+                return;
+            }
+
+            String fio = "";
+            String birthday = "";
+            String gender = "";
+            String phoneNumber = "";
+
+            try {
+                fio = parseFIO(str);
+                birthday = parseBirthday(str);
+                gender = parseGender(str);
+                phoneNumber = parsePhoneNumber(str);
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+                return;
+            }
+
+            saveData(fio, birthday, gender, phoneNumber);
+            System.out.println("Данные записаны.");
+        }
+        System.out.println("Программа завершена");
+    }
+
+    public static void saveData(String fio, String birthday, String gender, String phoneNumber) {
+
+        String[] dataFIO = fio.split(" ");
+        String path = dataFIO[0] + ".txt";
+
+        boolean hasAlready = false;
+
+        String newLine = createFileLine(fio, birthday, gender, phoneNumber);
+
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(path))) {
+            String line = bufferedReader.readLine();
+            while (line != null) {
+
+                if (line.replace("\n", "").equals(newLine.replace("\n", ""))) {
+                    hasAlready = true;
+                }
+
+                line = bufferedReader.readLine();
+            }
+        } catch (IOException ignored) {
+
         }
 
-        String fio = "";
-        String birthday = "";
-        String gender = "";
-        String phoneNumber = "";
-
-        try {
-            fio = parseFIO(str);
-            birthday = parseBirthday(str);
-            gender = parseGender(str);
-            phoneNumber = parsePhoneNumber(str);
-        } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-            return;
-        }
-
-        String path = fio.split(" ")[0] + ".txt";
-        try (FileWriter fw = new FileWriter(path)) {
-            fw.write(createFileLine(fio, birthday, gender, phoneNumber));
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
+        if (!hasAlready) {
+            try {
+                FileWriter fw = new FileWriter(path, true);
+                fw.write(newLine);
+                fw.close();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
@@ -49,6 +84,7 @@ public class hw3 {
         sb.append("<").append(birthday).append(">");
         sb.append("<").append(phoneNumber).append(">");
         sb.append("<").append(gender).append(">");
+        sb.append("\n");
 
         return sb.toString();
     }
@@ -124,16 +160,23 @@ public class hw3 {
                     throw new WrongBirthdayException("Не верно указан год.");
                 }
 
-                if (dataBirhday[0].length() != 2) throw new WrongBirthdayException("В значении дня должно быть 2 знака.");
-                if (dataBirhday[1].length() != 2) throw new WrongBirthdayException("В значении месяца должно быть 2 знака.");
-                if (dataBirhday[2].length() != 4) throw new WrongBirthdayException("В значении года должно быть 4 знака.");
+                if (dataBirhday[0].length() != 2)
+                    throw new WrongBirthdayException("В значении дня должно быть 2 знака.");
+                if (dataBirhday[1].length() != 2)
+                    throw new WrongBirthdayException("В значении месяца должно быть 2 знака.");
+                if (dataBirhday[2].length() != 4)
+                    throw new WrongBirthdayException("В значении года должно быть 4 знака.");
 
                 LocalDate currentDate = LocalDate.now();
 
-                if (Integer.parseInt(dataBirhday[0]) < 1 || Integer.parseInt(dataBirhday[0]) > 31) throw new WrongBirthdayException("Не верная дата. День должен быть от 1 до 31");
-                if (Integer.parseInt(dataBirhday[1]) < 1 || Integer.parseInt(dataBirhday[1]) > 12) throw new WrongBirthdayException("Не верная дата. Месяц должен быть от 1 до 12");
-                if (Integer.parseInt(dataBirhday[2]) > currentDate.getYear()) throw new WrongBirthdayException("Не верная дата. Год больше " + currentDate.getYear());
-                if (Integer.parseInt(dataBirhday[2]) < currentDate.getYear() - 150) throw new WrongBirthdayException("Вы вампир ?");
+                if (Integer.parseInt(dataBirhday[0]) < 1 || Integer.parseInt(dataBirhday[0]) > 31)
+                    throw new WrongBirthdayException("Не верная дата. День должен быть от 1 до 31");
+                if (Integer.parseInt(dataBirhday[1]) < 1 || Integer.parseInt(dataBirhday[1]) > 12)
+                    throw new WrongBirthdayException("Не верная дата. Месяц должен быть от 1 до 12");
+                if (Integer.parseInt(dataBirhday[2]) > currentDate.getYear())
+                    throw new WrongBirthdayException("Не верная дата. Год больше " + currentDate.getYear());
+                if (Integer.parseInt(dataBirhday[2]) < currentDate.getYear() - 150)
+                    throw new WrongBirthdayException("Вы вампир ?");
 
                 return tmp;
             }
@@ -164,14 +207,13 @@ public class hw3 {
     }
 
     public static String input() {
-//        System.out.println("Введите ФИО, Дату рождения, Номер телефона, Пол через пробел");
-//        System.out.println("Фамилия, Имя, Отчество - строки\nДата рождения - строка формата dd.mm.yyyy\nНомер телефона - целое беззнаковое число без форматирования\nпол - символ латиницей f или m);
-//        Scanner scanner = new Scanner(System.in);
-//        return scanner.nextLine();
+        System.out.println("Введите ФИО, Дату рождения, Номер телефона, Пол через пробел");
+        System.out.println("Фамилия, Имя, Отчество - строки\nДата рождения - строка формата dd.mm.yyyy\nНомер телефона - целое беззнаковое число без форматирования\nпол - символ латиницей f или m");
+        Scanner scanner = new Scanner(System.in);
+        return scanner.nextLine();
 
-        String str = "06.08.1982 Лепихов Роман Олегович 375293493335 f";
-
-        return str;
+//        String str = "06.08.1982 Лепихов Роман Олегович 375293493335 f";
+//        return str;
     }
 
     public static int checkingTheAmountOfData(String str) {
@@ -185,7 +227,7 @@ public class hw3 {
 
     public static class WrongLengthPhoneNumberException extends RuntimeException {
         public WrongLengthPhoneNumberException(int length) {
-            super("Длина телефонного номера должна быть 12 цифр а у вас: " + length);
+            super("Длина телефонного номера должна быть 12 цифр, а у вас: " + length);
         }
     }
 
