@@ -1,5 +1,6 @@
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
 
 public class hw3 {
     public static void main(String[] args) {
@@ -105,6 +106,35 @@ public class hw3 {
             }
 
             if (isBirthday) {
+                try {
+                    Integer.parseInt(dataBirhday[0]);
+                } catch (NumberFormatException e) {
+                    throw new WrongBirthdayException("Не верно указан день.");
+                }
+
+                try {
+                    Integer.parseInt(dataBirhday[1]);
+                } catch (NumberFormatException e) {
+                    throw new WrongBirthdayException("Не верно указан месяц.");
+                }
+
+                try {
+                    Integer.parseInt(dataBirhday[2]);
+                } catch (NumberFormatException e) {
+                    throw new WrongBirthdayException("Не верно указан год.");
+                }
+
+                if (dataBirhday[0].length() != 2) throw new WrongBirthdayException("В значении дня должно быть 2 знака.");
+                if (dataBirhday[1].length() != 2) throw new WrongBirthdayException("В значении месяца должно быть 2 знака.");
+                if (dataBirhday[2].length() != 4) throw new WrongBirthdayException("В значении года должно быть 4 знака.");
+
+                LocalDate currentDate = LocalDate.now();
+
+                if (Integer.parseInt(dataBirhday[0]) < 1 || Integer.parseInt(dataBirhday[0]) > 31) throw new WrongBirthdayException("Не верная дата. День должен быть от 1 до 31");
+                if (Integer.parseInt(dataBirhday[1]) < 1 || Integer.parseInt(dataBirhday[1]) > 12) throw new WrongBirthdayException("Не верная дата. Месяц должен быть от 1 до 12");
+                if (Integer.parseInt(dataBirhday[2]) > currentDate.getYear()) throw new WrongBirthdayException("Не верная дата. Год больше " + currentDate.getYear());
+                if (Integer.parseInt(dataBirhday[2]) < currentDate.getYear() - 150) throw new WrongBirthdayException("Вы вампир ?");
+
                 return tmp;
             }
         }
@@ -156,6 +186,12 @@ public class hw3 {
     public static class WrongLengthPhoneNumberException extends RuntimeException {
         public WrongLengthPhoneNumberException(int length) {
             super("Длина телефонного номера должна быть 12 цифр а у вас: " + length);
+        }
+    }
+
+    public static class WrongBirthdayException extends RuntimeException {
+        public WrongBirthdayException(String str) {
+            super(str);
         }
     }
 }
