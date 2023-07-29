@@ -1,5 +1,6 @@
 import java.io.*;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class hw3 {
@@ -13,10 +14,10 @@ public class hw3 {
 
             if (result == 1) {
                 System.out.println("Данных больше чем нужно");
-                return;
+                continue;
             } else if (result == 2) {
                 System.out.println("Данных меньше чем нужно");
-                return;
+                continue;
             }
 
             String fio = "";
@@ -31,16 +32,21 @@ public class hw3 {
                 phoneNumber = parsePhoneNumber(str);
             } catch (RuntimeException e) {
                 System.out.println(e.getMessage());
-                return;
+                continue;
             }
 
-            saveData(fio, birthday, gender, phoneNumber);
-            System.out.println("Данные записаны.");
+            try {
+                saveData(fio, birthday, gender, phoneNumber);
+                System.out.println("Данные записаны.");
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+                System.out.println(Arrays.toString(e.getStackTrace()));
+            }
         }
         System.out.println("Программа завершена");
     }
 
-    public static void saveData(String fio, String birthday, String gender, String phoneNumber) {
+    public static void saveData(String fio, String birthday, String gender, String phoneNumber) throws IOException {
 
         String[] dataFIO = fio.split(" ");
         String path = dataFIO[0] + ".txt";
@@ -69,7 +75,7 @@ public class hw3 {
                 fw.write(newLine);
                 fw.close();
             } catch (IOException e) {
-                System.out.println(e.getMessage());
+                throw new IOException(e);
             }
         }
     }
