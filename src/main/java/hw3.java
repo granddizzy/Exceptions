@@ -84,10 +84,8 @@ public class hw3 {
 
         // добавляем данные в файл
         if (!hasAlready) {
-            try {
-                FileWriter fw = new FileWriter(path, true);
+            try (FileWriter fw = new FileWriter(path, true)) {
                 fw.write(newLine);
-                fw.close();
             } catch (IOException e) {
                 throw new IOException(e);
             }
