@@ -8,10 +8,11 @@ public class hw3 {
         while (true) {
             String str = input();
 
+            // завершение программы при вводе пустой строки
             if (str.isEmpty()) break;
 
+            // проверка количества введенных данных
             int result = checkingTheAmountOfData(str);
-
             if (result == 1) {
                 System.out.println("Данных больше чем нужно");
                 continue;
@@ -25,6 +26,7 @@ public class hw3 {
             String gender = "";
             String phoneNumber = "";
 
+            // попытка получить данные из строки
             try {
                 fio = parseFIO(str);
                 birthday = parseBirthday(str);
@@ -35,6 +37,7 @@ public class hw3 {
                 continue;
             }
 
+            // попытка записать данные в файл
             try {
                 saveData(fio, birthday, gender, phoneNumber);
                 System.out.println("Данные записаны.");
@@ -46,6 +49,15 @@ public class hw3 {
         System.out.println("Программа завершена");
     }
 
+
+    /**
+     * Записывает данные в файл
+     * @param fio
+     * @param birthday
+     * @param gender
+     * @param phoneNumber
+     * @throws IOException
+     */
     public static void saveData(String fio, String birthday, String gender, String phoneNumber) throws IOException {
 
         String[] dataFIO = fio.split(" ");
@@ -55,6 +67,7 @@ public class hw3 {
 
         String newLine = createFileLine(fio, birthday, gender, phoneNumber);
 
+        // проверяем если такие данные уже есть
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(path))) {
             String line = bufferedReader.readLine();
             while (line != null) {
@@ -69,6 +82,7 @@ public class hw3 {
 
         }
 
+        // добавляем данные в файл
         if (!hasAlready) {
             try {
                 FileWriter fw = new FileWriter(path, true);
@@ -80,6 +94,14 @@ public class hw3 {
         }
     }
 
+    /**
+     * Создает строку из данных для записи в файл
+     * @param fio
+     * @param birthday
+     * @param gender
+     * @param phoneNumber
+     * @return
+     */
     public static String createFileLine(String fio, String birthday, String gender, String phoneNumber) {
         String[] dataFIO = fio.split(" ");
         StringBuilder sb = new StringBuilder();
@@ -95,6 +117,12 @@ public class hw3 {
         return sb.toString();
     }
 
+    /**
+     * Парсит ФИО
+     * @param str
+     * @return
+     * @throws RuntimeException
+     */
     public static String parseFIO(String str) throws RuntimeException {
         String[] data = str.split(" ");
         int count = 0;
@@ -122,6 +150,11 @@ public class hw3 {
         throw new RuntimeException("Не найден ФИО");
     }
 
+    /**
+     * Парсит пол
+     * @param str
+     * @return
+     */
     public static String parseGender(String str) {
         String[] data = str.split(" ");
 
@@ -136,6 +169,11 @@ public class hw3 {
         throw new RuntimeException("Не найден пол");
     }
 
+    /**
+     * Парсит день рождения
+     * @param str
+     * @return
+     */
     public static String parseBirthday(String str) {
         String[] data = str.split(" ");
 
@@ -191,6 +229,11 @@ public class hw3 {
         throw new RuntimeException("Не найдена дата рождения");
     }
 
+    /**
+     * Парсит телефонный номер
+     * @param str
+     * @return
+     */
     public static String parsePhoneNumber(String str) {
         String[] data = str.split(" ");
 
@@ -212,6 +255,10 @@ public class hw3 {
         throw new RuntimeException("Не найден телефонный номер");
     }
 
+    /**
+     * Запрашивает данные у пользователя
+     * @return
+     */
     public static String input() {
         System.out.println("Введите ФИО, Дату рождения, Номер телефона, Пол через пробел");
         System.out.println("Фамилия, Имя, Отчество - строки\nДата рождения - строка формата dd.mm.yyyy\nНомер телефона - целое беззнаковое число без форматирования\nпол - символ латиницей f или m");
@@ -222,6 +269,11 @@ public class hw3 {
 //        return str;
     }
 
+    /**
+     * Проверяет количество данных в строке
+     * @param str
+     * @return
+     */
     public static int checkingTheAmountOfData(String str) {
         String[] data = str.split(" ");
 
@@ -231,12 +283,18 @@ public class hw3 {
         return 0;
     }
 
+    /**
+     * Класс исключения при неправильной длине номера телефона
+     */
     public static class WrongLengthPhoneNumberException extends RuntimeException {
         public WrongLengthPhoneNumberException(int length) {
             super("Длина телефонного номера должна быть 12 цифр, а у вас: " + length);
         }
     }
 
+    /**
+     * Класс исключения при неправильном формате даты рождения
+     */
     public static class WrongBirthdayException extends RuntimeException {
         public WrongBirthdayException(String str) {
             super(str);
