@@ -158,7 +158,7 @@ public class hw3 {
 
         for (String tmp : data) {
             for (int i = 0; i < tmp.length(); i++) {
-                if (tmp.length() == 1 && (tmp.equals("f") || !tmp.equals("m"))) {
+                if (tmp.length() == 1 && (tmp.equals("f") || tmp.equals("m"))) {
                     return tmp;
                 }
             }
