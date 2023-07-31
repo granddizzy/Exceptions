@@ -1,7 +1,10 @@
 import java.io.*;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Scanner;
+
 
 public class hw3 {
     public static void main(String[] args) {
@@ -211,14 +214,21 @@ public class hw3 {
 
                 LocalDate currentDate = LocalDate.now();
 
-                if (Integer.parseInt(dataBirhday[0]) < 1 || Integer.parseInt(dataBirhday[0]) > 31)
-                    throw new WrongBirthdayException("Не верная дата. День должен быть от 1 до 31");
+                if (Integer.parseInt(dataBirhday[0]) < 1)
+                    throw new WrongBirthdayException("Не верная дата. День должен быть от 1");
                 if (Integer.parseInt(dataBirhday[1]) < 1 || Integer.parseInt(dataBirhday[1]) > 12)
                     throw new WrongBirthdayException("Не верная дата. Месяц должен быть от 1 до 12");
                 if (Integer.parseInt(dataBirhday[2]) > currentDate.getYear())
                     throw new WrongBirthdayException("Не верная дата. Год больше " + currentDate.getYear());
                 if (Integer.parseInt(dataBirhday[2]) < currentDate.getYear() - 150)
                     throw new WrongBirthdayException("Вы вампир ?");
+
+                Calendar calendar = new GregorianCalendar(Integer.parseInt(dataBirhday[2]),  Integer.parseInt(dataBirhday[1]) -1, 1);
+                int maxDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+                if (Integer.parseInt(dataBirhday[0]) > maxDays) {
+                    throw new WrongBirthdayException("В месяце " + Integer.parseInt(dataBirhday[1]) + " " + Integer.parseInt(dataBirhday[2]) + " года только " + maxDays + " дня.");
+                }
 
                 return tmp;
             }
@@ -263,7 +273,7 @@ public class hw3 {
         Scanner scanner = new Scanner(System.in);
         return scanner.nextLine();
 
-//        String str = "06.08.1982 Лепихов Роман Олегович 375293493335 f";
+//        String str = "31.02.1982 Лепихов Роман Олегович 375293493335 f";
 //        return str;
     }
 
